@@ -53,8 +53,26 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public TransactionOutputDTO getTransactionByUuid(UUID uuid) {
-        Optional<Transaction> transactionOptional = transactionRepository.findById(uuid);
-        return transactionOptional.map(transaction -> modelMapper.map(transaction, TransactionOutputDTO.class))
-                .orElseThrow(() -> new TransactionNotFoundException(uuid));
+        logger.info("Starting to get transaction by UUID: {}", uuid);
+        Transaction transaction = getTransaction(uuid);
+        logger.info("Transaction found: {}", transaction);
+        return modelMapper.map(transaction, TransactionOutputDTO.class);
+    }
+
+    @Override
+    public void updateTransactionStatus(UUID uuid, TransactionStatus transactionStatus) {
+        logger.info("Starting to update transaction status for UUID: {} to status: {}", uuid, transactionStatus.name());
+        Transaction transaction = getTransaction(uuid);
+        transaction.setStatus(transactionStatus);
+        transactionRepository.save(transaction);
+        logger.info("Transaction status updated successfully for UUID: {} to status: {}", uuid, transactionStatus.name());
+    }
+
+    private Transaction getTransaction(UUID uuid) {
+        return transactionRepository.findById(uuid)
+                .orElseThrow(() -> {
+                    logger.error("Transaction with UUID: {} not found", uuid);
+                    return new TransactionNotFoundException(uuid);
+                });
     }
 }

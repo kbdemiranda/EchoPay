@@ -12,4 +12,5 @@ public interface TransactionService {
     UUID createTransaction(TransactionInputDTO dto);
     TransactionOutputDTO getTransactionByUuid(UUID uuid);
 
+    void updateTransactionStatus(UUID uuid, TransactionStatus transactionStatus);
 }
