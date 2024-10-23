@@ -12,6 +12,10 @@ spring:
     url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/dev}
   kafka:
     bootstrap-servers: localhost:9092
+    consumer:
+      group-id: transaction-processor-group
+      auto-offset-reset: earliest
+      enable-auto-commit: true
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer

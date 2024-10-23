@@ -38,7 +38,7 @@ public class TransactionController {
         return ResponseEntity.ok(transactionService.getTransactionByUuid(uuid));
     }
 
-    @PatchMapping("/{uuid}/status")
+    @PutMapping("/{uuid}/status")
     public ResponseEntity<Void> updateTransactionStatus(@PathVariable UUID uuid, @RequestBody @Valid TransactionStatusDTO status) {
         logger.info("Received request to update status of transaction with UUID: {} to status: {}", uuid, status);
         try {

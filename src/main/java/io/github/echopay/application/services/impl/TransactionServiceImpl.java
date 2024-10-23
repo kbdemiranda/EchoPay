@@ -52,7 +52,8 @@ public class TransactionServiceImpl implements TransactionService {
         Transaction transactionSaved = transactionRepository.save(transaction);
         logger.info("Transaction saved with UUID: {}", uuid);
 
-        kafkaTemplate.send("transactions", transactionSaved.getUuid().toString(), transactionSaved);
+//        kafkaTemplate.send("transactions", transactionSaved.getUuid().toString(), transactionSaved);
+        kafkaTemplate.send("transactions", transaction.getUuid().toString());
         logger.info("Transaction message sent to Kafka for UUID: {}", uuid);
 
 
