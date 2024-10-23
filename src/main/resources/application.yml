@@ -10,6 +10,11 @@ spring:
     username: ${DBUSERNAME:postgres}
     password: ${DBPASSWORD:postgres}
     url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/dev}
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
   jpa:
     hibernate:
       ddl-auto: validate

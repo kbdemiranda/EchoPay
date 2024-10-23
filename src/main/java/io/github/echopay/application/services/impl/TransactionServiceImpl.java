@@ -5,6 +5,7 @@ import io.github.echopay.application.dtos.outputs.TransactionOutputDTO;
 import io.github.echopay.application.services.TransactionService;
 import io.github.echopay.domain.enums.TransactionStatus;
 import io.github.echopay.domain.models.Transaction;
+import io.github.echopay.infrastructure.config.KafkaProducerConfig;
 import io.github.echopay.infrastructure.exceptions.TransactionNotFoundException;
 import io.github.echopay.infrastructure.repositories.TransactionRepository;
 import io.github.echopay.utils.UUIDGenerator;
@@ -12,6 +13,7 @@ import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,11 +28,13 @@ public class TransactionServiceImpl implements TransactionService {
     private final TransactionRepository transactionRepository;
     private final ModelMapper modelMapper;
     private final UUIDGenerator uuidGenerator;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
-    public TransactionServiceImpl(TransactionRepository transactionRepository, ModelMapper modelMapper, UUIDGenerator uuidGenerator) {
+    public TransactionServiceImpl(TransactionRepository transactionRepository, ModelMapper modelMapper, UUIDGenerator uuidGenerator, KafkaTemplate<String, Object> kafkaTemplate) {
         this.transactionRepository = transactionRepository;
         this.modelMapper = modelMapper;
         this.uuidGenerator = uuidGenerator;
+        this.kafkaTemplate = kafkaTemplate;
     }
 
     @Override
@@ -45,8 +49,12 @@ public class TransactionServiceImpl implements TransactionService {
         transaction.setStatus(TransactionStatus.PENDING);
         logger.debug("Mapped transaction: {}", transaction);
 
-        transactionRepository.save(transaction);
+        Transaction transactionSaved = transactionRepository.save(transaction);
         logger.info("Transaction saved with UUID: {}", uuid);
+
+        kafkaTemplate.send("transactions", transactionSaved.getUuid().toString(), transactionSaved);
+        logger.info("Transaction message sent to Kafka for UUID: {}", uuid);
+
 
         return transaction.getUuid();
     }
