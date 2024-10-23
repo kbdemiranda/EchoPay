@@ -10,5 +10,6 @@ import java.util.UUID;
 public interface TransactionService {
 
     UUID createTransaction(TransactionInputDTO dto);
+    TransactionOutputDTO getTransactionByUuid(UUID uuid);
 
 }
